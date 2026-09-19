@@ -1,0 +1,129 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Common Security Helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128;
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isOwner(userId) && request.resource.data.uid == request.auth.uid;
+      allow update: if isOwner(userId) && request.resource.data.uid == resource.data.uid;
+      allow delete: if false;
+    }
+
+    // Companies Collection
+    match /companies/{companyId} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.resource.data.createdBy == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.createdBy == request.auth.uid && request.resource.data.createdBy == resource.data.createdBy;
+      allow delete: if isSignedIn() && resource.data.createdBy == request.auth.uid;
+    }
+
+    // Jobs Collection
+    match /jobs/{jobId} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.resource.data.employerId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.employerId == request.auth.uid && request.resource.data.employerId == resource.data.employerId;
+      allow delete: if isSignedIn() && resource.data.employerId == request.auth.uid;
+    }
+
+    // Applications Collection - Hardened against privilege escalation
+    match /applications/{applicationId} {
+      // Readable only by the applicant or the job's employer
+      allow read: if isSignedIn() && (
+        resource.data.applicantId == request.auth.uid ||
+        resource.data.employerId == request.auth.uid
+      );
+
+      // Job seeker can only create an application for themselves with initial 'applied' status
+      allow create: if isSignedIn() &&
+        request.resource.data.applicantId == request.auth.uid &&
+        request.resource.data.status == 'applied';
+
+      // Strict role-based updates:
+      // 1. Applicant can ONLY withdraw their application
+      // 2. Employer can update status, statusHistory, and feedback notes, but cannot change applicantId
+      allow update: if isSignedIn() && (
+        (
+          resource.data.applicantId == request.auth.uid &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'statusHistory', 'updatedAt']) &&
+          request.resource.data.status == 'withdrawn'
+        ) ||
+        (
+          resource.data.employerId == request.auth.uid &&
+          request.resource.data.applicantId == resource.data.applicantId &&
+          request.resource.data.employerId == resource.data.employerId &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'statusHistory', 'updatedAt', 'internalNotes', 'feedback'])
+        )
+      );
+
+      allow delete: if false;
+    }
+
+    // Saved Jobs Collection
+    match /savedJobs/{savedJobId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // Conversations Collection
+    match /conversations/{conversationId} {
+      allow read: if isSignedIn() && (request.auth.uid in resource.data.participants);
+      allow create: if isSignedIn() && (request.auth.uid in request.resource.data.participants);
+      allow update: if isSignedIn() && (request.auth.uid in resource.data.participants);
+      allow delete: if false;
+
+      // Subcollection for messages
+      match /messages/{messageId} {
+        allow read: if isSignedIn() && (
+          request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants
+        );
+        allow create: if isSignedIn() && (
+          request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants
+        ) && request.resource.data.senderId == request.auth.uid;
+        allow update, delete: if false;
+      }
+    }
+
+    // Notifications Collection
+    match /notifications/{notificationId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // Verification Requests
+    match /verificationRequests/{requestId} {
+      allow read: if isSignedIn() && resource.data.applicantId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.applicantId == request.auth.uid;
+      allow update: if false; // Only admins or compliance services can approve
+      allow delete: if false;
+    }
+
+    // Trust & Safety Reports
+    match /reports/{reportId} {
+      allow create: if isSignedIn() && request.resource.data.reporterId == request.auth.uid;
+      allow read: if false; // Confidential for compliance review
+      allow update, delete: if false;
+    }
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile document containing account role and professional information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["jobSeeker", "employer"] },
+        "photoURL": { "type": "string" },
+        "headline": { "type": "string" },
+        "bio": { "type": "string" },
+        "location": { "type": "string" },
+        "skills": { "type": "array" },
+        "verificationStatus": { "type": "string", "enum": ["unverified", "pending", "verified", "rejected"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Company": {
+      "title": "Company",
+      "description": "Company profile created and managed by employers",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "industry": { "type": "string" },
+        "size": { "type": "string" },
+        "location": { "type": "string" },
+        "website": { "type": "string" },
+        "description": { "type": "string" },
+        "verificationStatus": { "type": "string" },
+        "createdBy": { "type": "string" }
+      },
+      "required": ["id", "name", "createdBy"]
+    },
+    "Job": {
+      "title": "Job",
+      "description": "Job posting with role requirements, compensation, and workplace policy",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "companyName": { "type": "string" },
+        "employerId": { "type": "string" },
+        "location": { "type": "string" },
+        "workplaceType": { "type": "string", "enum": ["remote", "hybrid", "onsite"] },
+        "employmentType": { "type": "string", "enum": ["full-time", "part-time", "contract", "internship"] },
+        "experienceLevel": { "type": "string", "enum": ["entry", "mid", "senior", "lead"] },
+        "salaryMin": { "type": "number" },
+        "salaryMax": { "type": "number" },
+        "currency": { "type": "string" },
+        "requiredSkills": { "type": "array" },
+        "status": { "type": "string", "enum": ["active", "paused", "closed"] }
+      },
+      "required": ["id", "title", "employerId", "companyName", "status"]
+    },
+    "Application": {
+      "title": "Application",
+      "description": "Job seeker application submitted to a job vacancy",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "jobId": { "type": "string" },
+        "employerId": { "type": "string" },
+        "applicantId": { "type": "string" },
+        "applicantName": { "type": "string" },
+        "status": { "type": "string", "enum": ["applied", "under_review", "shortlisted", "interview", "offer", "rejected", "withdrawn"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "jobId", "employerId", "applicantId", "status"]
+    },
+    "Conversation": {
+      "title": "Conversation",
+      "description": "Direct communication channel between job seeker and recruiter",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "participants": { "type": "array" },
+        "lastMessage": { "type": "string" },
+        "lastMessageTimestamp": { "type": "string" }
+      },
+      "required": ["id", "participants"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Collection of user accounts and profile data"
+    },
+    "/companies/{companyId}": {
+      "schema": { "$ref": "#/entities/Company" },
+      "description": "Collection of employer company organizations"
+    },
+    "/jobs/{jobId}": {
+      "schema": { "$ref": "#/entities/Job" },
+      "description": "Collection of employment job postings"
+    },
+    "/applications/{applicationId}": {
+      "schema": { "$ref": "#/entities/Application" },
+      "description": "Collection of applications linking applicants to jobs"
+    },
+    "/conversations/{conversationId}": {
+      "schema": { "$ref": "#/entities/Conversation" },
+      "description": "Collection of real-time messaging dialogues"
+    }
+  }
+}

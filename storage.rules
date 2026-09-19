@@ -1,0 +1,48 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Default deny all files
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Public Assets: company logos and public user avatars
+    match /public/{allPaths=**} {
+      allow read: if true;
+      allow write: if isSignedIn() && request.resource.size < 5 * 1024 * 1024 &&
+        request.resource.contentType.matches('image/.*');
+    }
+
+    // Candidate Resumes & Documents
+    match /resumes/{userId}/{fileName} {
+      // Readable by the applicant and authenticated employers
+      allow read: if isSignedIn();
+      // Writable only by the applicant, limited to PDF or DOC/DOCX under 10MB
+      allow write: if isSignedIn() && request.auth.uid == userId &&
+        request.resource.size < 10 * 1024 * 1024 &&
+        (request.resource.contentType.matches('application/pdf') ||
+         request.resource.contentType.matches('application/msword') ||
+         request.resource.contentType.matches('application/vnd.openxmlformats-officedocument.wordprocessingml.document'));
+    }
+
+    // Verification Compliance Documents (Confidential)
+    match /verifications/{userId}/{fileName} {
+      // Readable only by the applicant (and compliance admins via server SDK)
+      allow read: if isSignedIn() && request.auth.uid == userId;
+      // Writable by applicant, under 10MB
+      allow write: if isSignedIn() && request.auth.uid == userId &&
+        request.resource.size < 10 * 1024 * 1024;
+    }
+
+    // Chat Attachments
+    match /chat_attachments/{conversationId}/{fileName} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && request.resource.size < 15 * 1024 * 1024;
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "Apollo",
+  "description": "A modern professional employment ecosystem connecting job seekers and employers with real-time applications, messaging, verified credentials, and hiring tools.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
