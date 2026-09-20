@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { DatabaseService } from './services/db';
 import { Job, UserRole } from './types';
 import { Navbar } from './components/common/Navbar';
@@ -27,9 +28,11 @@ import { AuthModal } from './components/auth/AuthModal';
 import { VerificationModal } from './components/common/VerificationModal';
 import { ReportModal } from './components/common/ReportModal';
 import { AccessDenied } from './components/common/AccessDenied';
+import { AdminPortal } from './components/admin/AdminPortal';
+import { CustomerSupportModal } from './components/support/CustomerSupportModal';
 
 function MainApp() {
-  const { user, role } = useAuth();
+  const { user, role, isSuperAdmin } = useAuth();
 
   // Navigation State
   const [currentView, setCurrentView] = useState<string>('landing');
@@ -46,6 +49,7 @@ function MainApp() {
   const [applyModalOpen, setApplyModalOpen] = useState(false);
   const [jobForApply, setJobForApply] = useState<Job | null>(null);
   const [verificationModalOpen, setVerificationModalOpen] = useState(false);
+  const [supportModalOpen, setSupportModalOpen] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [reportTarget, setReportTarget] = useState<{ id: string; title: string }>({
     id: '',
@@ -67,14 +71,18 @@ function MainApp() {
   useEffect(() => {
     if (user) {
       DatabaseService.getSavedJobIds(user.uid).then((ids) => setSavedJobIds(ids));
-      // Auto-route new sign-ins if on landing
-      if (currentView === 'landing') {
+      // Auto-route to admin portal if admin/staff, otherwise to respective dashboard
+      if (isSuperAdmin || user.role === 'admin' || user.role === 'staff') {
+        if (currentView === 'landing' || currentView === 'seeker_dashboard' || currentView === 'employer_dashboard') {
+          setCurrentView('admin_portal');
+        }
+      } else if (currentView === 'landing') {
         setCurrentView(role === 'employer' ? 'employer_dashboard' : 'seeker_dashboard');
       }
     } else {
       setSavedJobIds([]);
     }
-  }, [user, role]);
+  }, [user, role, isSuperAdmin]);
 
   const handleNavigate = (view: string, data?: any) => {
     setCurrentView(view);
@@ -136,13 +144,17 @@ function MainApp() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50/60 font-sans text-slate-800 antialiased selection:bg-indigo-500 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-slate-50/60 dark:bg-slate-950 font-sans text-slate-800 dark:text-slate-100 antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-200">
       {/* Universal Sticky Navbar */}
       <Navbar
         currentView={currentView}
         onNavigate={handleNavigate}
         onOpenAuthModal={handleOpenAuth}
         onOpenVerificationModal={() => setVerificationModalOpen(true)}
+        onOpenSupportModal={() => setSupportModalOpen(true)}
+        onOpenReportModal={() =>
+          handleOpenReport('apollo_platform_safety', 'Layanan Pengaduan Apollo')
+        }
       />
 
       {/* Main View Router */}
@@ -338,6 +350,18 @@ function MainApp() {
             onOpenVerificationModal={() => setVerificationModalOpen(true)}
           />
         )}
+
+        {currentView === 'admin_portal' && (
+          !user || (!isSuperAdmin && role !== 'admin' && role !== 'staff') ? (
+            <AccessDenied
+              isAuthenticated={!!user}
+              onOpenAuthModal={handleOpenAuth}
+              onNavigate={handleNavigate}
+            />
+          ) : (
+            <AdminPortal onNavigate={handleNavigate} />
+          )
+        )}
       </main>
 
       {/* Universal Footer */}
@@ -380,6 +404,20 @@ function MainApp() {
         onClose={() => setAuthModalOpen(false)}
         initialRole={preferredRole}
         onSuccess={() => {
+          const cached = localStorage.getItem('apollo_active_user_v1');
+          if (cached) {
+            try {
+              const u = JSON.parse(cached);
+              if (u.isSuperAdmin || u.role === 'admin' || u.role === 'staff') {
+                setCurrentView('admin_portal');
+                return;
+              }
+              if (u.role === 'employer') {
+                setCurrentView('employer_dashboard');
+                return;
+              }
+            } catch {}
+          }
           setCurrentView(
             preferredRole === 'employer' ? 'employer_dashboard' : 'seeker_dashboard'
           );
@@ -391,6 +429,15 @@ function MainApp() {
         onClose={() => setVerificationModalOpen(false)}
         onSuccess={() => {
           // Trigger updates
+        }}
+      />
+
+      <CustomerSupportModal
+        isOpen={supportModalOpen}
+        onClose={() => setSupportModalOpen(false)}
+        onOpenReportModal={() => {
+          setSupportModalOpen(false);
+          handleOpenReport('apollo_support', 'Pusat Layanan & Pengaduan Apollo');
         }}
       />
 
@@ -407,8 +454,10 @@ function MainApp() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <MainApp />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <MainApp />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

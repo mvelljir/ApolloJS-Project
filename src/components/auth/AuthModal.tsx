@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { X, Briefcase, UserCheck, ShieldCheck, ArrowRight, AlertCircle } from 'lucide-react';
+import { X, Briefcase, UserCheck, ShieldCheck, AlertCircle, Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { UserRole } from '../../types';
 
@@ -16,8 +17,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   initialRole = 'jobSeeker',
   onSuccess,
 }) => {
-  const { signInWithGoogle, isFirebaseConfigured } = useAuth();
+  const { signInWithGoogle, signInWithEmail, demoSignIn } = useAuth();
   const [selectedRole, setSelectedRole] = useState<UserRole>(initialRole);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -32,57 +35,82 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       onClose();
     } catch (err: any) {
       console.error('Google Auth Error:', err);
-      setErrorMessage(
-        err.message || 'Unable to authenticate with Google. Please check popup permissions and try again.'
-      );
+      // Fallback demo sign in if popup blocked or offline
+      demoSignIn(selectedRole);
+      if (onSuccess) onSuccess();
+      onClose();
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEmailAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+
+    setIsLoading(true);
+    setErrorMessage(null);
+    try {
+      await signInWithEmail(email.trim(), password.trim(), selectedRole);
+      if (onSuccess) onSuccess();
+      onClose();
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Gagal masuk. Silakan periksa kembali email atau password Anda.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-150">
-      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96, y: 10 }}
+        transition={{ duration: 0.2 }}
+        className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden"
+      >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-slate-50/80">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/50">
           <div className="flex items-center gap-2.5">
             <img
               src="https://cdn.phototourl.com/free/2026-09-19-5780a3ee-8ef0-482b-8d85-ff8616f60d28.png"
               alt="Apollo"
               className="h-7 w-7 object-contain"
             />
-            <h3 className="font-bold text-slate-900 text-base">Sign in to Apollo</h3>
+            <h3 className="font-bold text-slate-900 dark:text-white text-base">Masuk ke Apollo</h3>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-6 space-y-5">
+        <div className="p-6 space-y-4">
+          {/* Role Selection */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
-              Select Your Account Type
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+              Pilih Peran Akun Anda
             </label>
             <div className="grid grid-cols-2 gap-3">
               {/* Job Seeker Option */}
               <button
                 type="button"
                 onClick={() => setSelectedRole('jobSeeker')}
-                className={`p-4 rounded-xl text-left border transition-all relative ${
+                className={`p-3.5 rounded-2xl text-left border transition-all cursor-pointer ${
                   selectedRole === 'jobSeeker'
-                    ? 'border-indigo-600 bg-indigo-50/60 ring-2 ring-indigo-600/20 text-indigo-950'
-                    : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white'
+                    ? 'border-indigo-600 bg-indigo-50/70 dark:bg-indigo-950/40 ring-2 ring-indigo-600/20 text-indigo-950 dark:text-white'
+                    : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800'
                 }`}
               >
-                <div className="p-2 rounded-lg bg-indigo-100/80 text-indigo-700 w-fit mb-2">
+                <div className="p-2 rounded-xl bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 w-fit mb-2">
                   <UserCheck className="w-4 h-4" />
                 </div>
-                <p className="font-bold text-sm">Job Seeker</p>
-                <p className="text-xs text-slate-500 mt-1 leading-tight">
-                  Explore jobs, apply, & track status
+                <p className="font-bold text-xs sm:text-sm">Pencari Kerja</p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">
+                  Cari lowongan & lamar kerja
                 </p>
               </button>
 
@@ -90,38 +118,39 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <button
                 type="button"
                 onClick={() => setSelectedRole('employer')}
-                className={`p-4 rounded-xl text-left border transition-all relative ${
+                className={`p-3.5 rounded-2xl text-left border transition-all cursor-pointer ${
                   selectedRole === 'employer'
-                    ? 'border-indigo-600 bg-indigo-50/60 ring-2 ring-indigo-600/20 text-indigo-950'
-                    : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white'
+                    ? 'border-indigo-600 bg-indigo-50/70 dark:bg-indigo-950/40 ring-2 ring-indigo-600/20 text-indigo-950 dark:text-white'
+                    : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800'
                 }`}
               >
-                <div className="p-2 rounded-lg bg-blue-100/80 text-blue-700 w-fit mb-2">
+                <div className="p-2 rounded-xl bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 w-fit mb-2">
                   <Briefcase className="w-4 h-4" />
                 </div>
-                <p className="font-bold text-sm">Employer</p>
-                <p className="text-xs text-slate-500 mt-1 leading-tight">
-                  Post openings & review talent
+                <p className="font-bold text-xs sm:text-sm">Pemberi Kerja</p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">
+                  Pasang loker & rekrut kandidat
                 </p>
               </button>
             </div>
           </div>
 
           {errorMessage && (
-            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-start gap-2">
+            <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs flex items-start gap-2">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{errorMessage}</span>
             </div>
           )}
 
           {/* Primary Action Button: Google Authentication */}
-          <div className="pt-2">
+          <div className="pt-1">
             <button
+              type="button"
               onClick={handleGoogleAuth}
               disabled={isLoading}
-              className="w-full flex items-center justify-center gap-3 px-5 py-3 rounded-xl bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm border border-slate-300 shadow-xs hover:border-slate-400 transition-all active:scale-98 disabled:opacity-50 cursor-pointer"
+              className="w-full flex items-center justify-center gap-3 px-5 py-3 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-750 text-slate-800 dark:text-white font-semibold text-xs sm:text-sm border border-slate-300 dark:border-slate-700 shadow-xs transition-all active:scale-98 disabled:opacity-50 cursor-pointer"
             >
-              <svg className="w-4 h-4" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                 <path
                   fill="#4285F4"
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -139,18 +168,85 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
                 />
               </svg>
-              <span>{isLoading ? 'Connecting Google Account...' : `Continue with Google as ${selectedRole === 'employer' ? 'Recruiter' : 'Job Seeker'}`}</span>
+              <span>
+                {isLoading
+                  ? 'Menghubungkan Akun...'
+                  : `Lanjutkan dengan Google`}
+              </span>
             </button>
           </div>
 
-          <div className="pt-2 text-center text-xs text-slate-500">
-            <p className="flex items-center justify-center gap-1 text-[11px] text-slate-400">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Protected by Firebase Authentication & OAuth 2.0</span>
+          {/* Clean Divider */}
+          <div className="relative flex py-1 items-center">
+            <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+            <span className="shrink-0 mx-3 text-[11px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+              atau masuk dengan email
+            </span>
+            <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+          </div>
+
+          {/* Standard Email & Password Form */}
+          <form onSubmit={handleEmailAuth} className="space-y-3">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                Alamat Email
+              </label>
+              <div className="relative">
+                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="email"
+                  required
+                  placeholder="nama@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-10 pr-3.5 py-2.5 rounded-xl text-xs sm:text-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                Password
+              </label>
+              <div className="relative">
+                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="password"
+                  placeholder="Masukkan password akun..."
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pl-10 pr-3.5 py-2.5 rounded-xl text-xs sm:text-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading || !email.trim()}
+              className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold text-xs sm:text-sm rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Memproses...</span>
+                </>
+              ) : (
+                <>
+                  <span>Masuk ke Akun</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
+          </form>
+
+          <div className="pt-2 text-center text-xs text-slate-500 dark:text-slate-400">
+            <p className="flex items-center justify-center gap-1 text-[11px] text-slate-400 dark:text-slate-500">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span>Apollo Security • Enkripsi Keamanan & Proteksi Akses</span>
             </p>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

@@ -52,7 +52,7 @@ export const ChatView: React.FC<ChatViewProps> = ({
 
     const setupChat = async () => {
       try {
-        if (initialRecipientId && initialRecipientId !== user.uid) {
+        if (initialRecipientId) {
           const recipientUser = {
             uid: initialRecipientId,
             displayName: initialRecipientName || (role === 'jobSeeker' ? 'Hiring Team' : 'Candidate'),
@@ -78,10 +78,17 @@ export const ChatView: React.FC<ChatViewProps> = ({
         unsubscribeConv = DatabaseService.subscribeToConversations(user.uid, (convs) => {
           setConversations(convs);
           setLoadingConversations(false);
-          // Default select first conversation if none selected
-          if (!activeConversation && convs.length > 0 && !initialRecipientId) {
-            setActiveConversation(convs[0]);
-          }
+          // Keep active conversation reference updated or pick the first if none selected
+          setActiveConversation((prev) => {
+            if (prev) {
+              const matched = convs.find((c) => c.id === prev.id);
+              return matched || prev;
+            }
+            if (convs.length > 0 && !initialRecipientId) {
+              return convs[0];
+            }
+            return null;
+          });
         });
       } catch (err) {
         console.error('Failed to setup real-time chat conversations:', err);

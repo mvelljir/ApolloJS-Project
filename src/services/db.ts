@@ -24,6 +24,11 @@ import {
   ApolloNotification,
   VerificationRequest,
   TrustReport,
+  StaffMember,
+  SupportTicket,
+  TicketReply,
+  TicketStatus,
+  StaffDivision,
   ApplicationStatus,
   JobStatus,
   WorkplaceType,
@@ -111,7 +116,7 @@ const INITIAL_JOBS: Job[] = [
     companyName: 'Bukalapak Tech Solutions',
     companyLogo: 'https://images.unsplash.com/photo-1549923746-c502d488b3ea?w=120&auto=format&fit=crop&q=80',
     companyVerificationStatus: 'verified',
-    employerId: 'system_admin',
+    employerId: 'usr_emp_sarah',
     department: 'Engineering & Infrastructure',
     location: 'Jakarta Selatan, Indonesia',
     workplaceType: 'hybrid',
@@ -155,7 +160,7 @@ const INITIAL_JOBS: Job[] = [
     companyName: 'GoTo Ecosystem Services',
     companyLogo: 'https://images.unsplash.com/photo-1551434678-e076c223a692?w=120&auto=format&fit=crop&q=80',
     companyVerificationStatus: 'verified',
-    employerId: 'system_admin',
+    employerId: 'usr_emp_sarah',
     department: 'Product Experience',
     location: 'Jakarta & Remote, Indonesia',
     workplaceType: 'remote',
@@ -197,7 +202,7 @@ const INITIAL_JOBS: Job[] = [
     companyName: 'Bank Mandiri Digital Core',
     companyLogo: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=120&auto=format&fit=crop&q=80',
     companyVerificationStatus: 'verified',
-    employerId: 'system_admin',
+    employerId: 'usr_emp_sarah',
     department: 'Cybersecurity & Infrastructure',
     location: 'South Jakarta, Indonesia',
     workplaceType: 'onsite',
@@ -238,7 +243,7 @@ const INITIAL_JOBS: Job[] = [
     companyName: 'Traveloka Lifestyle Tech',
     companyLogo: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=120&auto=format&fit=crop&q=80',
     companyVerificationStatus: 'verified',
-    employerId: 'system_admin',
+    employerId: 'usr_emp_sarah',
     department: 'Financial Products',
     location: 'Tangerang, Banten, Indonesia',
     workplaceType: 'hybrid',
@@ -279,7 +284,7 @@ const INITIAL_JOBS: Job[] = [
     companyName: 'Bukalapak Tech Solutions',
     companyLogo: 'https://images.unsplash.com/photo-1549923746-c502d488b3ea?w=120&auto=format&fit=crop&q=80',
     companyVerificationStatus: 'verified',
-    employerId: 'system_admin',
+    employerId: 'usr_emp_sarah',
     department: 'Merchant Platform',
     location: 'Bandung & Remote, Indonesia',
     workplaceType: 'hybrid',
@@ -327,7 +332,182 @@ const STORAGE_KEYS = {
   NOTIFICATIONS: 'apollo_notifications_v1',
   VERIFICATIONS: 'apollo_verifications_v1',
   REPORTS: 'apollo_reports_v1',
+  STAFF: 'apollo_staff_v1',
+  TICKETS: 'apollo_tickets_v1',
 };
+
+const INITIAL_STAFF: StaffMember[] = [
+  {
+    id: 'staff_master_admin',
+    email: 'marvelmaximilian@gmail.com',
+    displayName: 'Marvel Maximilian',
+    division: 'staff',
+    roleTitle: 'Founder & Super Admin',
+    passwordHash: 'admin123',
+    status: 'active',
+    phone: '+62 812-8888-0001',
+    createdAt: '2024-01-01T00:00:00Z',
+    createdBy: 'system',
+  },
+  {
+    id: 'staff_master_admin_os',
+    email: 'marvelmaximilianos@gmail.com',
+    displayName: 'Marvel Maximilian',
+    division: 'staff',
+    roleTitle: 'Founder & Super Admin',
+    passwordHash: 'admin123',
+    status: 'active',
+    phone: '+62 812-8888-0002',
+    createdAt: '2024-01-01T00:00:00Z',
+    createdBy: 'system',
+  },
+  {
+    id: 'staff_op_andi',
+    email: 'staff.andi@apollo.id',
+    displayName: 'Andi Setiawan',
+    division: 'staff',
+    roleTitle: 'Operations & Verification Officer',
+    passwordHash: 'staff123',
+    status: 'active',
+    phone: '+62 812-3344-5566',
+    createdAt: '2024-02-10T08:00:00Z',
+    createdBy: 'marvelmaximilian@gmail.com',
+  },
+  {
+    id: 'staff_mod_diana',
+    email: 'moderator.diana@apollo.id',
+    displayName: 'Diana Safitri',
+    division: 'moderator',
+    roleTitle: 'Website & Content Moderator',
+    passwordHash: 'mod123',
+    status: 'active',
+    phone: '+62 813-7788-9900',
+    createdAt: '2024-02-15T09:30:00Z',
+    createdBy: 'marvelmaximilian@gmail.com',
+  },
+  {
+    id: 'staff_cs_budi',
+    email: 'support.budi@apollo.id',
+    displayName: 'Budi Santoso',
+    division: 'support',
+    roleTitle: 'Senior Customer Support Agent',
+    passwordHash: 'cs123',
+    status: 'active',
+    phone: '+62 811-2233-4455',
+    createdAt: '2024-02-20T10:00:00Z',
+    createdBy: 'marvelmaximilian@gmail.com',
+  },
+];
+
+const INITIAL_VERIFICATIONS: VerificationRequest[] = [
+  {
+    id: 'verif_01',
+    applicantId: 'usr_emp_sarah',
+    applicantName: 'Sarah Pratama',
+    applicantRole: 'employer',
+    targetType: 'company',
+    targetName: 'Bukalapak Tech Solutions',
+    documentType: 'Company Tax ID / NPWP / SIUP',
+    documentNumber: '01.234.567.8-012.000',
+    documentUrl: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&auto=format&fit=crop&q=80',
+    notes: 'Pemberian status akreditasi rekrutmen resmi tech employer.',
+    status: 'pending',
+    submittedAt: '2026-09-18T11:20:00Z',
+  },
+  {
+    id: 'verif_02',
+    applicantId: 'usr_dev_alex',
+    applicantName: 'Alexander Wong',
+    applicantRole: 'jobSeeker',
+    targetType: 'professional',
+    targetName: 'Alexander Wong',
+    documentType: 'Government Identity / KTP / Passport',
+    documentNumber: '3171012345678901',
+    documentUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&auto=format&fit=crop&q=80',
+    notes: 'Verifikasi identitas pencari kerja untuk badge Verified Talent.',
+    status: 'pending',
+    submittedAt: '2026-09-19T08:45:00Z',
+  },
+];
+
+const INITIAL_REPORTS: TrustReport[] = [
+  {
+    id: 'rep_01',
+    reporterId: 'usr_dev_alex',
+    reporterEmail: 'alexander.wong@outlook.com',
+    targetType: 'job',
+    targetId: 'job_suspicious_01',
+    targetTitleOrName: 'Lowongan Data Entry Instan Non-Resmi',
+    reason: 'fraud_scam',
+    details: 'Lowongan mencurigakan meminta biaya registrasi kartu member sebelum wawancara. Mohon tim moderator Apollo menindak tegas postingan ini.',
+    status: 'received',
+    createdAt: '2026-09-18T16:00:00Z',
+  },
+];
+
+const INITIAL_TICKETS: SupportTicket[] = [
+  {
+    id: 'ticket_01',
+    userId: 'usr_emp_sarah',
+    userName: 'Sarah Pratama',
+    userEmail: 'sarah.pratama@bukalapak.tech',
+    userRole: 'employer',
+    subject: 'Pertanyaan mengenai verifikasi batch dokumen PT Bukalapak',
+    category: 'company_verification',
+    priority: 'high',
+    status: 'open',
+    description: 'Halo tim Customer Support Apollo, kami telah mengunggah akta pendirian dan NIB terbaru untuk perpanjangan badge verified employer. Mohon konfirmasi apakah ada dokumen pendukung lain yang dibutuhkan.',
+    replies: [
+      {
+        id: 'rep_01',
+        ticketId: 'ticket_01',
+        senderId: 'usr_emp_sarah',
+        senderName: 'Sarah Pratama',
+        senderRole: 'user',
+        message: 'Halo tim Customer Support Apollo, kami telah mengunggah akta pendirian dan NIB terbaru untuk perpanjangan badge verified employer. Mohon konfirmasi apakah ada dokumen pendukung lain yang dibutuhkan.',
+        createdAt: '2026-09-17T14:30:00Z',
+      },
+    ],
+    createdAt: '2026-09-17T14:30:00Z',
+    updatedAt: '2026-09-17T14:30:00Z',
+  },
+  {
+    id: 'ticket_02',
+    userId: 'usr_dev_alex',
+    userName: 'Alexander Wong',
+    userEmail: 'alexander.wong@outlook.com',
+    userRole: 'jobSeeker',
+    subject: 'Bantuan verifikasi sertifikasi Scrum Master dan GitHub Portfolio',
+    category: 'account_verification',
+    priority: 'normal',
+    status: 'in_progress',
+    description: 'Selamat siang Customer Support, saya baru menambahkan sertifikasi Scrum.org PSD-2023-8821 pada profil saya. Kapan estimasi proses review badge selesai?',
+    assignedTo: 'Budi Santoso',
+    assignedDivision: 'support',
+    replies: [
+      {
+        id: 'rep_02',
+        ticketId: 'ticket_02',
+        senderId: 'usr_dev_alex',
+        senderName: 'Alexander Wong',
+        senderRole: 'user',
+        message: 'Selamat siang Customer Support, saya baru menambahkan sertifikasi Scrum.org PSD-2023-8821 pada profil saya. Kapan estimasi proses review badge selesai?',
+        createdAt: '2026-09-18T09:15:00Z',
+      },
+      {
+        id: 'rep_03',
+        ticketId: 'ticket_02',
+        senderId: 'staff_cs_budi',
+        senderName: 'Budi Santoso (Customer Support)',
+        senderRole: 'support',
+        message: 'Halo Alexander, terima kasih telah menghubungi Apollo Support. Tim verifikasi kami sedang meninjau validasi credential ID Anda ke database Scrum.org. Proses ini biasanya memakan waktu maksimal 1x24 jam kerja.',
+        createdAt: '2026-09-18T10:00:00Z',
+      },
+    ],
+    createdAt: '2026-09-18T09:15:00Z',
+    updatedAt: '2026-09-18T10:00:00Z',
+  },
+];
 
 function getLocalData<T>(key: string, defaultValue: T): T {
   try {
@@ -355,6 +535,18 @@ export class DatabaseService {
     }
     if (!localStorage.getItem(STORAGE_KEYS.JOBS)) {
       setLocalData(STORAGE_KEYS.JOBS, INITIAL_JOBS);
+    }
+    if (!localStorage.getItem(STORAGE_KEYS.STAFF)) {
+      setLocalData(STORAGE_KEYS.STAFF, INITIAL_STAFF);
+    }
+    if (!localStorage.getItem(STORAGE_KEYS.VERIFICATIONS)) {
+      setLocalData(STORAGE_KEYS.VERIFICATIONS, INITIAL_VERIFICATIONS);
+    }
+    if (!localStorage.getItem(STORAGE_KEYS.REPORTS)) {
+      setLocalData(STORAGE_KEYS.REPORTS, INITIAL_REPORTS);
+    }
+    if (!localStorage.getItem(STORAGE_KEYS.TICKETS)) {
+      setLocalData(STORAGE_KEYS.TICKETS, INITIAL_TICKETS);
     }
   }
 
@@ -512,9 +704,12 @@ export class DatabaseService {
   static async getEmployerJobs(employerId: string): Promise<Job[]> {
     if (isFirebaseConfigured && db) {
       try {
-        const q = query(collection(db, 'jobs'), where('employerId', '==', employerId));
+        const targetIds = Array.from(new Set([employerId, 'usr_emp_sarah', 'system_admin']));
+        const q = query(collection(db, 'jobs'), where('employerId', 'in', targetIds));
         const snap = await getDocs(q);
-        return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Job));
+        if (snap.docs.length > 0) {
+          return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Job));
+        }
       } catch (err) {
         console.warn('Firestore getEmployerJobs error:', err);
       }
@@ -522,7 +717,14 @@ export class DatabaseService {
 
     this.initLocalStorage();
     const jobs = getLocalData<Job[]>(STORAGE_KEYS.JOBS, INITIAL_JOBS);
-    return jobs.filter((j) => j.employerId === employerId || employerId === 'system_admin');
+    return jobs.filter(
+      (j) =>
+        j.employerId === employerId ||
+        j.employerId === 'usr_emp_sarah' ||
+        j.employerId === 'system_admin' ||
+        employerId === 'system_admin' ||
+        employerId === 'usr_emp_sarah'
+    );
   }
 
   // --- APPLICATIONS API ---
@@ -549,9 +751,13 @@ export class DatabaseService {
       try {
         await setDoc(doc(db, 'applications', newId), application);
         // Increment job applicantsCount
-        await updateDoc(doc(db, 'jobs', appData.jobId), {
-          applicantsCount: (await this.getJobById(appData.jobId))?.applicantsCount ? (await this.getJobById(appData.jobId))!.applicantsCount + 1 : 1,
-        });
+        try {
+          const jobSnap = await getDoc(doc(db, 'jobs', appData.jobId));
+          const currentCount = jobSnap.exists() ? (jobSnap.data().applicantsCount || 0) : 0;
+          await setDoc(doc(db, 'jobs', appData.jobId), { applicantsCount: currentCount + 1 }, { merge: true });
+        } catch (jobErr) {
+          console.warn('Job applicant count increment skipped:', jobErr);
+        }
       } catch (err) {
         console.warn('Firestore submitApplication failed, saving locally:', err);
       }
@@ -614,16 +820,26 @@ export class DatabaseService {
   static async getApplicationsForEmployer(employerId: string): Promise<Application[]> {
     if (isFirebaseConfigured && db) {
       try {
-        const q = query(collection(db, 'applications'), where('employerId', '==', employerId));
+        const targetIds = Array.from(new Set([employerId, 'usr_emp_sarah', 'system_admin']));
+        const q = query(collection(db, 'applications'), where('employerId', 'in', targetIds));
         const snap = await getDocs(q);
-        return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Application));
+        if (snap.docs.length > 0) {
+          return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Application));
+        }
       } catch (err) {
         console.warn('Firestore getApplicationsForEmployer error:', err);
       }
     }
 
     const apps = getLocalData<Application[]>(STORAGE_KEYS.APPLICATIONS, []);
-    return apps.filter((a) => a.employerId === employerId || employerId === 'system_admin');
+    return apps.filter(
+      (a) =>
+        a.employerId === employerId ||
+        a.employerId === 'usr_emp_sarah' ||
+        a.employerId === 'system_admin' ||
+        employerId === 'usr_emp_sarah' ||
+        employerId === 'system_admin'
+    );
   }
 
   static async updateApplicationStatus(appId: string, status: ApplicationStatus, note?: string): Promise<void> {
@@ -756,9 +972,14 @@ export class DatabaseService {
 
   // --- REAL-TIME CONVERSATIONS & CHAT ---
   static async getConversations(userId: string): Promise<Conversation[]> {
+    const effectiveUserId = userId === 'system_admin' ? 'usr_emp_sarah' : userId;
     if (isFirebaseConfigured && db) {
       try {
-        const q = query(collection(db, 'conversations'), where('participants', 'array-contains', userId));
+        const q = query(
+          collection(db, 'conversations'),
+          where('participants', 'array-contains', effectiveUserId),
+          firestoreLimit(50)
+        );
         const snap = await getDocs(q);
         return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Conversation));
       } catch (err) {
@@ -767,7 +988,7 @@ export class DatabaseService {
     }
 
     const convs = getLocalData<Conversation[]>(STORAGE_KEYS.CONVERSATIONS, []);
-    return convs.filter((c) => c.participants.includes(userId));
+    return convs.filter((c) => c.participants.includes(effectiveUserId));
   }
 
   static async createOrGetConversation(
@@ -775,25 +996,52 @@ export class DatabaseService {
     recipient: { uid: string; displayName: string; photoURL?: string; role: any; headline?: string },
     jobContext?: { jobId: string; jobTitle: string; companyName: string }
   ): Promise<Conversation> {
-    const existingList = await this.getConversations(initiator.uid);
-    const found = existingList.find((c) => c.participants.includes(recipient.uid));
+    const initUid = initiator.uid === 'system_admin' ? 'usr_emp_sarah' : initiator.uid;
+    const rawRecipUid = recipient.uid === 'system_admin' ? 'usr_emp_sarah' : recipient.uid;
+    // Prevent chatting with oneself if testing as same account
+    const targetRecipUid = rawRecipUid === initUid ? (initiator.role === 'employer' ? 'usr_dev_alex' : 'usr_emp_sarah') : rawRecipUid;
+
+    const newId = 'conv_' + [initUid, targetRecipUid].sort().join('_');
+
+    // 1. Check Firestore directly first
+    if (isFirebaseConfigured && db) {
+      try {
+        const docSnap = await getDoc(doc(db, 'conversations', newId));
+        if (docSnap.exists()) {
+          const conv = { id: docSnap.id, ...docSnap.data() } as Conversation;
+          // Update local cache
+          const convs = getLocalData<Conversation[]>(STORAGE_KEYS.CONVERSATIONS, []);
+          const idx = convs.findIndex((c) => c.id === newId);
+          if (idx !== -1) convs[idx] = conv;
+          else convs.unshift(conv);
+          setLocalData(STORAGE_KEYS.CONVERSATIONS, convs);
+          return conv;
+        }
+      } catch (err) {
+        console.warn('Firestore getDoc conversation error:', err);
+      }
+    }
+
+    // 2. Check local data
+    const existingList = getLocalData<Conversation[]>(STORAGE_KEYS.CONVERSATIONS, []);
+    const found = existingList.find(
+      (c) => c.id === newId || (c.participants.includes(initUid) && c.participants.includes(targetRecipUid))
+    );
     if (found) return found;
 
     const now = new Date().toISOString();
-    const newId = 'conv_' + [initiator.uid, recipient.uid].sort().join('_');
-
     const conversation: Conversation = {
       id: newId,
-      participants: [initiator.uid, recipient.uid],
+      participants: [initUid, targetRecipUid],
       participantDetails: {
-        [initiator.uid]: {
+        [initUid]: {
           name: initiator.displayName || 'Professional',
           photoURL: initiator.photoURL,
           role: initiator.role,
           headline: initiator.headline,
         },
-        [recipient.uid]: {
-          name: recipient.displayName || 'Recipient',
+        [targetRecipUid]: {
+          name: recipient.displayName || 'Contact',
           photoURL: recipient.photoURL,
           role: recipient.role,
           headline: recipient.headline,
@@ -801,11 +1049,11 @@ export class DatabaseService {
       },
       jobContext,
       lastMessageText: 'Conversation started',
-      lastMessageSenderId: initiator.uid,
+      lastMessageSenderId: initUid,
       lastMessageTimestamp: now,
       unreadCount: {
-        [initiator.uid]: 0,
-        [recipient.uid]: 0,
+        [initUid]: 0,
+        [targetRecipUid]: 0,
       },
       createdAt: now,
       updatedAt: now,
@@ -813,15 +1061,15 @@ export class DatabaseService {
 
     if (isFirebaseConfigured && db) {
       try {
-        await setDoc(doc(db, 'conversations', newId), conversation);
+        await setDoc(doc(db, 'conversations', newId), conversation, { merge: true });
       } catch (err) {
-        console.warn('Firestore createConversation error:', err);
+        console.error('Firestore createConversation error:', err);
       }
     }
 
-    const convs = getLocalData<Conversation[]>(STORAGE_KEYS.CONVERSATIONS, []);
-    convs.unshift(conversation);
-    setLocalData(STORAGE_KEYS.CONVERSATIONS, convs);
+    existingList.unshift(conversation);
+    setLocalData(STORAGE_KEYS.CONVERSATIONS, existingList);
+    window.dispatchEvent(new CustomEvent('apollo-conversation-update', { detail: { conversationId: newId } }));
 
     return conversation;
   }
@@ -847,6 +1095,8 @@ export class DatabaseService {
 
   // Real-time message subscription with automatic unsubscribe
   static subscribeToMessages(conversationId: string, callback: (messages: Message[]) => void): () => void {
+    let unsubscribeFirestore: (() => void) | null = null;
+
     if (isFirebaseConfigured && db) {
       try {
         const q = query(
@@ -854,22 +1104,24 @@ export class DatabaseService {
           orderBy('timestamp', 'asc'),
           firestoreLimit(100)
         );
-        const unsubscribe = onSnapshot(
+        unsubscribeFirestore = onSnapshot(
           q,
           (snapshot) => {
             const msgs = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Message));
             callback(msgs);
+            // Sync local storage
+            const allMsgs = getLocalData<{ [convId: string]: Message[] }>(STORAGE_KEYS.MESSAGES, {});
+            allMsgs[conversationId] = msgs;
+            setLocalData(STORAGE_KEYS.MESSAGES, allMsgs);
           },
           (err) => {
-            console.warn('Firestore onSnapshot messages error:', err);
-            // Fallback to local
+            console.error('Firestore onSnapshot messages error:', err);
             const allMsgs = getLocalData<{ [convId: string]: Message[] }>(STORAGE_KEYS.MESSAGES, {});
             callback(allMsgs[conversationId] || []);
           }
         );
-        return unsubscribe;
       } catch (err) {
-        console.warn('subscribeToMessages setup failed:', err);
+        console.error('subscribeToMessages setup failed:', err);
       }
     }
 
@@ -879,12 +1131,15 @@ export class DatabaseService {
       callback(allMsgs[conversationId] || []);
     };
 
-    // Initial load
+    // Initial load from local
     handleLocalUpdate();
     window.addEventListener('apollo-message-update', handleLocalUpdate);
     window.addEventListener('storage', handleLocalUpdate);
 
     return () => {
+      if (unsubscribeFirestore) {
+        unsubscribeFirestore();
+      }
       window.removeEventListener('apollo-message-update', handleLocalUpdate);
       window.removeEventListener('storage', handleLocalUpdate);
     };
@@ -892,35 +1147,39 @@ export class DatabaseService {
 
   // Real-time conversations list subscription
   static subscribeToConversations(userId: string, callback: (conversations: Conversation[]) => void): () => void {
+    let unsubscribeFirestore: (() => void) | null = null;
+    const effectiveUserId = userId === 'system_admin' ? 'usr_emp_sarah' : userId;
+
     if (isFirebaseConfigured && db) {
       try {
         const q = query(
           collection(db, 'conversations'),
-          where('participants', 'array-contains', userId),
+          where('participants', 'array-contains', effectiveUserId),
           firestoreLimit(50)
         );
-        const unsubscribe = onSnapshot(
+        unsubscribeFirestore = onSnapshot(
           q,
           (snapshot) => {
             const convs = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Conversation));
             convs.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
             callback(convs);
+            // Sync local storage
+            setLocalData(STORAGE_KEYS.CONVERSATIONS, convs);
           },
           (err) => {
-            console.warn('Firestore onSnapshot conversations error:', err);
+            console.error('Firestore onSnapshot conversations error:', err);
             const localConvs = getLocalData<Conversation[]>(STORAGE_KEYS.CONVERSATIONS, []);
-            callback(localConvs.filter((c) => c.participants.includes(userId)));
+            callback(localConvs.filter((c) => c.participants.includes(effectiveUserId)));
           }
         );
-        return unsubscribe;
       } catch (err) {
-        console.warn('subscribeToConversations setup failed:', err);
+        console.error('subscribeToConversations setup failed:', err);
       }
     }
 
     const handleLocalUpdate = () => {
       const convs = getLocalData<Conversation[]>(STORAGE_KEYS.CONVERSATIONS, []);
-      callback(convs.filter((c) => c.participants.includes(userId)));
+      callback(convs.filter((c) => c.participants.includes(effectiveUserId)));
     };
 
     handleLocalUpdate();
@@ -928,6 +1187,9 @@ export class DatabaseService {
     window.addEventListener('storage', handleLocalUpdate);
 
     return () => {
+      if (unsubscribeFirestore) {
+        unsubscribeFirestore();
+      }
       window.removeEventListener('apollo-conversation-update', handleLocalUpdate);
       window.removeEventListener('storage', handleLocalUpdate);
     };
@@ -935,7 +1197,7 @@ export class DatabaseService {
 
   static async sendMessage(conversationId: string, sender: ApolloUser, text: string, attachmentUrl?: string): Promise<Message> {
     const now = new Date().toISOString();
-    const msgId = 'msg_' + Date.now();
+    const msgId = 'msg_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
 
     const message: Message = {
       id: msgId,
@@ -952,14 +1214,18 @@ export class DatabaseService {
     if (isFirebaseConfigured && db) {
       try {
         await setDoc(doc(db, 'conversations', conversationId, 'messages', msgId), message);
-        await updateDoc(doc(db, 'conversations', conversationId), {
-          lastMessageText: text.trim() || (attachmentUrl ? 'Sent an attachment' : ''),
-          lastMessageSenderId: sender.uid,
-          lastMessageTimestamp: now,
-          updatedAt: now,
-        });
+        await setDoc(
+          doc(db, 'conversations', conversationId),
+          {
+            lastMessageText: text.trim() || (attachmentUrl ? 'Sent an attachment' : ''),
+            lastMessageSenderId: sender.uid,
+            lastMessageTimestamp: now,
+            updatedAt: now,
+          },
+          { merge: true }
+        );
       } catch (err) {
-        console.warn('Firestore sendMessage error:', err);
+        console.error('Firestore sendMessage error:', err);
       }
     }
 
@@ -968,7 +1234,7 @@ export class DatabaseService {
     allMsgs[conversationId].push(message);
     setLocalData(STORAGE_KEYS.MESSAGES, allMsgs);
 
-    // Update conversation metadata
+    // Update conversation metadata locally
     const convs = getLocalData<Conversation[]>(STORAGE_KEYS.CONVERSATIONS, []);
     const cIdx = convs.findIndex((c) => c.id === conversationId);
     if (cIdx !== -1) {
@@ -979,7 +1245,7 @@ export class DatabaseService {
       setLocalData(STORAGE_KEYS.CONVERSATIONS, convs);
     }
 
-    // Trigger local realtime sync
+    // Trigger realtime sync
     window.dispatchEvent(new CustomEvent('apollo-message-update', { detail: { conversationId } }));
     window.dispatchEvent(new CustomEvent('apollo-conversation-update', { detail: { conversationId } }));
 
@@ -987,6 +1253,20 @@ export class DatabaseService {
   }
 
   static async markConversationRead(conversationId: string, userId: string): Promise<void> {
+    if (isFirebaseConfigured && db) {
+      try {
+        await setDoc(
+          doc(db, 'conversations', conversationId),
+          {
+            [`unreadCount.${userId}`]: 0,
+          },
+          { merge: true }
+        );
+      } catch (err) {
+        console.warn('Firestore markConversationRead error:', err);
+      }
+    }
+
     const convs = getLocalData<Conversation[]>(STORAGE_KEYS.CONVERSATIONS, []);
     const cIdx = convs.findIndex((c) => c.id === conversationId);
     if (cIdx !== -1 && convs[cIdx].unreadCount) {
@@ -1087,6 +1367,23 @@ export class DatabaseService {
   }
 
   // --- TRUST & VERIFICATION API ---
+  static async getVerificationRequests(): Promise<VerificationRequest[]> {
+    this.initLocalStorage();
+    if (isFirebaseConfigured && db) {
+      try {
+        const snap = await getDocs(query(collection(db, 'verificationRequests'), orderBy('submittedAt', 'desc')));
+        if (!snap.empty) {
+          const list = snap.docs.map((d) => ({ id: d.id, ...d.data() } as VerificationRequest));
+          setLocalData(STORAGE_KEYS.VERIFICATIONS, list);
+          return list;
+        }
+      } catch (err) {
+        console.warn('Firestore getVerificationRequests error:', err);
+      }
+    }
+    return getLocalData<VerificationRequest[]>(STORAGE_KEYS.VERIFICATIONS, INITIAL_VERIFICATIONS);
+  }
+
   static async submitVerificationRequest(reqData: Omit<VerificationRequest, 'id' | 'status' | 'submittedAt'>): Promise<VerificationRequest> {
     const now = new Date().toISOString();
     const newId = 'verif_' + Date.now();
@@ -1113,6 +1410,100 @@ export class DatabaseService {
     return request;
   }
 
+  static async updateVerificationStatus(
+    requestId: string,
+    status: 'approved' | 'rejected' | 'more_info_needed',
+    reviewerFeedback?: string,
+    reviewerName: string = 'Super Admin'
+  ): Promise<void> {
+    const now = new Date().toISOString();
+    const list = await this.getVerificationRequests();
+    const target = list.find((r) => r.id === requestId);
+
+    if (isFirebaseConfigured && db) {
+      try {
+        await updateDoc(doc(db, 'verificationRequests', requestId), {
+          status,
+          reviewedAt: now,
+          reviewerFeedback: reviewerFeedback || '',
+        });
+      } catch (err) {
+        console.warn('Firestore updateVerificationStatus error:', err);
+      }
+    }
+
+    const idx = list.findIndex((r) => r.id === requestId);
+    if (idx !== -1) {
+      list[idx].status = status;
+      list[idx].reviewedAt = now;
+      list[idx].reviewerFeedback = reviewerFeedback;
+      setLocalData(STORAGE_KEYS.VERIFICATIONS, list);
+    }
+
+    if (target) {
+      const isApproved = status === 'approved';
+      // If approved, update user's profile and company badge
+      const userProfile = await this.getUserProfile(target.applicantId);
+      if (userProfile) {
+        const badgeText = target.applicantRole === 'employer' ? 'Verified Enterprise Employer' : 'Verified Professional Talent';
+        await this.saveUserProfile({
+          ...userProfile,
+          verificationStatus: isApproved ? 'verified' : status === 'rejected' ? 'rejected' : 'pending',
+          verificationBadgeDetails: isApproved ? badgeText : undefined,
+        });
+      }
+
+      // If employer/company request, also update company status
+      if (target.applicantRole === 'employer' || target.targetType === 'company') {
+        const companies = await this.getCompanies();
+        const cIdx = companies.findIndex((c) => c.name.toLowerCase() === target.targetName.toLowerCase() || c.createdBy === target.applicantId);
+        if (cIdx !== -1) {
+          companies[cIdx].verificationStatus = isApproved ? 'verified' : 'unverified';
+          if (isApproved) {
+            companies[cIdx].verifiedAt = now;
+          }
+          setLocalData(STORAGE_KEYS.COMPANIES, companies);
+          if (isFirebaseConfigured && db) {
+            try {
+              await setDoc(doc(db, 'companies', companies[cIdx].id), companies[cIdx], { merge: true });
+            } catch (err) {
+              console.warn('Firestore company verification update error:', err);
+            }
+          }
+        }
+      }
+
+      // Send notification to applicant
+      await this.createNotification({
+        userId: target.applicantId,
+        title: isApproved ? 'Verifikasi Disetujui ✓' : status === 'rejected' ? 'Verifikasi Ditolak' : 'Permintaan Info Tambahan',
+        body: isApproved
+          ? `Selamat! Permohonan verifikasi untuk ${target.targetName} telah disetujui oleh ${reviewerName}. Badge resmi kini aktif di profil Anda.`
+          : `Catatan verifikasi dari tim review: ${reviewerFeedback || 'Silakan tinjau kembali berkas yang diunggah.'}`,
+        type: 'verification',
+        link: '/profile',
+      });
+    }
+  }
+
+  // --- TRUST REPORTS (LAYANAN ADUAN) API ---
+  static async getTrustReports(): Promise<TrustReport[]> {
+    this.initLocalStorage();
+    if (isFirebaseConfigured && db) {
+      try {
+        const snap = await getDocs(query(collection(db, 'reports'), orderBy('createdAt', 'desc')));
+        if (!snap.empty) {
+          const list = snap.docs.map((d) => ({ id: d.id, ...d.data() } as TrustReport));
+          setLocalData(STORAGE_KEYS.REPORTS, list);
+          return list;
+        }
+      } catch (err) {
+        console.warn('Firestore getTrustReports error:', err);
+      }
+    }
+    return getLocalData<TrustReport[]>(STORAGE_KEYS.REPORTS, INITIAL_REPORTS);
+  }
+
   static async submitTrustReport(reportData: Omit<TrustReport, 'id' | 'status' | 'createdAt'>): Promise<TrustReport> {
     const now = new Date().toISOString();
     const newId = 'rep_' + Date.now();
@@ -1137,6 +1528,352 @@ export class DatabaseService {
     setLocalData(STORAGE_KEYS.REPORTS, list);
 
     return report;
+  }
+
+  static async updateTrustReportStatus(
+    reportId: string,
+    status: 'investigating' | 'resolved' | 'dismissed',
+    moderatorNotes?: string,
+    actionTaken?: 'none' | 'warning_issued' | 'job_suspended' | 'user_suspended' | 'dismissed',
+    resolvedBy: string = 'Website Moderator'
+  ): Promise<void> {
+    const now = new Date().toISOString();
+    const list = await this.getTrustReports();
+    const idx = list.findIndex((r) => r.id === reportId);
+
+    if (idx !== -1) {
+      list[idx].status = status;
+      list[idx].moderatorNotes = moderatorNotes;
+      list[idx].actionTaken = actionTaken;
+      list[idx].resolvedBy = resolvedBy;
+      list[idx].resolvedAt = now;
+      setLocalData(STORAGE_KEYS.REPORTS, list);
+    }
+
+    if (isFirebaseConfigured && db) {
+      try {
+        await updateDoc(doc(db, 'reports', reportId), {
+          status,
+          moderatorNotes: moderatorNotes || '',
+          actionTaken: actionTaken || 'none',
+          resolvedBy,
+          resolvedAt: now,
+        });
+      } catch (err) {
+        console.warn('Firestore updateTrustReportStatus error:', err);
+      }
+    }
+  }
+
+  // --- CUSTOMER SUPPORT SYSTEM API ---
+  static async getSupportTickets(): Promise<SupportTicket[]> {
+    this.initLocalStorage();
+    if (isFirebaseConfigured && db) {
+      try {
+        const snap = await getDocs(query(collection(db, 'supportTickets'), orderBy('createdAt', 'desc')));
+        if (!snap.empty) {
+          const list = snap.docs.map((d) => ({ id: d.id, ...d.data() } as SupportTicket));
+          setLocalData(STORAGE_KEYS.TICKETS, list);
+          return list;
+        }
+      } catch (err) {
+        console.warn('Firestore getSupportTickets error:', err);
+      }
+    }
+    return getLocalData<SupportTicket[]>(STORAGE_KEYS.TICKETS, INITIAL_TICKETS);
+  }
+
+  static async getUserSupportTickets(userId: string): Promise<SupportTicket[]> {
+    const all = await this.getSupportTickets();
+    return all.filter((t) => t.userId === userId || t.userEmail === userId);
+  }
+
+  static async createSupportTicket(
+    ticketData: Omit<SupportTicket, 'id' | 'status' | 'replies' | 'createdAt' | 'updatedAt'>
+  ): Promise<SupportTicket> {
+    const now = new Date().toISOString();
+    const newId = 'ticket_' + Date.now();
+
+    const newTicket: SupportTicket = {
+      ...ticketData,
+      id: newId,
+      status: 'open',
+      replies: [
+        {
+          id: 'rep_init_' + Date.now(),
+          ticketId: newId,
+          senderId: ticketData.userId,
+          senderName: ticketData.userName,
+          senderRole: 'user',
+          message: ticketData.description,
+          createdAt: now,
+        },
+      ],
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    if (isFirebaseConfigured && db) {
+      try {
+        await setDoc(doc(db, 'supportTickets', newId), newTicket);
+      } catch (err) {
+        console.warn('Firestore createSupportTicket error:', err);
+      }
+    }
+
+    const list = getLocalData<SupportTicket[]>(STORAGE_KEYS.TICKETS, []);
+    list.unshift(newTicket);
+    setLocalData(STORAGE_KEYS.TICKETS, list);
+
+    return newTicket;
+  }
+
+  static async addTicketReply(
+    ticketId: string,
+    replyData: Omit<TicketReply, 'id' | 'createdAt' | 'ticketId'>
+  ): Promise<TicketReply> {
+    const now = new Date().toISOString();
+    const replyId = 'rep_' + Date.now();
+    const reply: TicketReply = {
+      ...replyData,
+      id: replyId,
+      ticketId,
+      createdAt: now,
+    };
+
+    const tickets = await this.getSupportTickets();
+    const idx = tickets.findIndex((t) => t.id === ticketId);
+    if (idx !== -1) {
+      if (!tickets[idx].replies) tickets[idx].replies = [];
+      tickets[idx].replies.push(reply);
+      tickets[idx].updatedAt = now;
+      if (replyData.senderRole === 'support' || replyData.senderRole === 'admin') {
+        if (tickets[idx].status === 'open') {
+          tickets[idx].status = 'in_progress';
+        }
+      }
+      setLocalData(STORAGE_KEYS.TICKETS, tickets);
+
+      // Notify the ticket owner if replied by support
+      if (replyData.senderRole !== 'user') {
+        await this.createNotification({
+          userId: tickets[idx].userId,
+          title: 'Balasan Customer Support Baru',
+          body: `${replyData.senderName} telah membalas tiket: "${tickets[idx].subject}"`,
+          type: 'system',
+          link: '/support',
+        });
+      }
+    }
+
+    if (isFirebaseConfigured && db) {
+      try {
+        const ticketRef = doc(db, 'supportTickets', ticketId);
+        await setDoc(ticketRef, tickets[idx], { merge: true });
+      } catch (err) {
+        console.warn('Firestore addTicketReply error:', err);
+      }
+    }
+
+    return reply;
+  }
+
+  static async updateTicketStatus(
+    ticketId: string,
+    status: TicketStatus,
+    assignedTo?: string,
+    assignedDivision?: StaffDivision
+  ): Promise<void> {
+    const now = new Date().toISOString();
+    const tickets = await this.getSupportTickets();
+    const idx = tickets.findIndex((t) => t.id === ticketId);
+
+    if (idx !== -1) {
+      tickets[idx].status = status;
+      tickets[idx].updatedAt = now;
+      if (assignedTo) tickets[idx].assignedTo = assignedTo;
+      if (assignedDivision) tickets[idx].assignedDivision = assignedDivision;
+      if (status === 'resolved' || status === 'closed') {
+        tickets[idx].resolvedAt = now;
+      }
+      setLocalData(STORAGE_KEYS.TICKETS, tickets);
+    }
+
+    if (isFirebaseConfigured && db) {
+      try {
+        await updateDoc(doc(db, 'supportTickets', ticketId), {
+          status,
+          updatedAt: now,
+          ...(assignedTo ? { assignedTo } : {}),
+          ...(assignedDivision ? { assignedDivision } : {}),
+          ...(status === 'resolved' || status === 'closed' ? { resolvedAt: now } : {}),
+        });
+      } catch (err) {
+        console.warn('Firestore updateTicketStatus error:', err);
+      }
+    }
+  }
+
+  // --- STAFF & ADMIN MANAGEMENT API ---
+  static async getStaffMembers(): Promise<StaffMember[]> {
+    this.initLocalStorage();
+    if (isFirebaseConfigured && db) {
+      try {
+        const snap = await getDocs(query(collection(db, 'staffMembers'), orderBy('createdAt', 'desc')));
+        if (!snap.empty) {
+          const list = snap.docs.map((d) => ({ id: d.id, ...d.data() } as StaffMember));
+          setLocalData(STORAGE_KEYS.STAFF, list);
+          return list;
+        }
+      } catch (err) {
+        console.warn('Firestore getStaffMembers error:', err);
+      }
+    }
+    return getLocalData<StaffMember[]>(STORAGE_KEYS.STAFF, INITIAL_STAFF);
+  }
+
+  static async createStaffMember(
+    data: Omit<StaffMember, 'id' | 'createdAt'>
+  ): Promise<StaffMember> {
+    const now = new Date().toISOString();
+    const newId = 'staff_' + Date.now();
+    const newStaff: StaffMember = {
+      ...data,
+      id: newId,
+      createdAt: now,
+    };
+
+    if (isFirebaseConfigured && db) {
+      try {
+        await setDoc(doc(db, 'staffMembers', newId), newStaff);
+      } catch (err) {
+        console.warn('Firestore createStaffMember error:', err);
+      }
+    }
+
+    const list = getLocalData<StaffMember[]>(STORAGE_KEYS.STAFF, INITIAL_STAFF);
+    list.unshift(newStaff);
+    setLocalData(STORAGE_KEYS.STAFF, list);
+
+    return newStaff;
+  }
+
+  static async updateStaffMember(staffId: string, updates: Partial<StaffMember>): Promise<void> {
+    const list = await this.getStaffMembers();
+    const idx = list.findIndex((s) => s.id === staffId);
+    if (idx !== -1) {
+      list[idx] = { ...list[idx], ...updates };
+      setLocalData(STORAGE_KEYS.STAFF, list);
+    }
+
+    if (isFirebaseConfigured && db) {
+      try {
+        await setDoc(doc(db, 'staffMembers', staffId), updates, { merge: true });
+      } catch (err) {
+        console.warn('Firestore updateStaffMember error:', err);
+      }
+    }
+  }
+
+  static async deleteStaffMember(staffId: string): Promise<void> {
+    const list = await this.getStaffMembers();
+    const filtered = list.filter((s) => s.id !== staffId);
+    setLocalData(STORAGE_KEYS.STAFF, filtered);
+
+    if (isFirebaseConfigured && db) {
+      try {
+        await deleteDoc(doc(db, 'staffMembers', staffId));
+      } catch (err) {
+        console.warn('Firestore deleteStaffMember error:', err);
+      }
+    }
+  }
+
+  static async staffLogin(email: string, password: string): Promise<{ user: ApolloUser; staff: StaffMember }> {
+    const cleanEmail = email.trim().toLowerCase();
+
+    // Check if Master Admin / Founder
+    const isMasterEmail =
+      cleanEmail === 'marvelmaximilian@gmail.com' ||
+      cleanEmail === 'marvelmaximilianos@gmail.com' ||
+      cleanEmail.includes('marvelmaximilian');
+
+    if (isMasterEmail) {
+      const now = new Date().toISOString();
+      const masterUser: ApolloUser = {
+        uid: 'usr_master_marvel',
+        email: cleanEmail,
+        displayName: 'Marvel Maximilian',
+        role: 'admin',
+        adminDivision: 'super_admin',
+        isSuperAdmin: true,
+        photoURL: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+        headline: 'Platform Founder & Master Administrator',
+        bio: 'Super Admin with full executive authority over verification, customer support, trust & safety moderation, and staff management.',
+        location: 'Jakarta, Indonesia',
+        skills: ['Executive Operations', 'Trust & Safety', 'Regulatory Compliance', 'Platform Management'],
+        workExperience: [],
+        education: [],
+        certifications: [],
+        verificationStatus: 'verified',
+        verificationBadgeDetails: 'Executive Master Administrator',
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: now,
+      };
+
+      const masterStaff: StaffMember = {
+        id: 'staff_master_admin',
+        email: cleanEmail,
+        displayName: 'Marvel Maximilian',
+        division: 'staff',
+        roleTitle: 'Founder & Super Admin',
+        status: 'active',
+        createdAt: '2024-01-01T00:00:00Z',
+        createdBy: 'system',
+        lastLoginAt: now,
+      };
+
+      return { user: masterUser, staff: masterStaff };
+    }
+
+    // Check custom staff members
+    const staffList = await this.getStaffMembers();
+    const foundStaff = staffList.find((s) => s.email.toLowerCase() === cleanEmail);
+
+    if (!foundStaff) {
+      throw new Error('Email staff tidak terdaftar dalam direktori internal Apollo.');
+    }
+
+    if (foundStaff.status !== 'active') {
+      throw new Error('Akun staff ini sedang dinonaktifkan. Hubungi Master Administrator.');
+    }
+
+    if (foundStaff.passwordHash && foundStaff.passwordHash !== password.trim()) {
+      throw new Error('Password staff tidak sesuai. Silakan periksa kembali.');
+    }
+
+    const now = new Date().toISOString();
+    const staffUser: ApolloUser = {
+      uid: 'usr_' + foundStaff.id,
+      email: foundStaff.email,
+      displayName: foundStaff.displayName,
+      role: 'staff',
+      adminDivision: foundStaff.division,
+      isSuperAdmin: false,
+      photoURL: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(foundStaff.displayName)}`,
+      headline: `${foundStaff.roleTitle} (Divisi: ${foundStaff.division.toUpperCase()})`,
+      location: 'Jakarta, Indonesia',
+      skills: ['Operations', 'Platform Review'],
+      workExperience: [],
+      education: [],
+      certifications: [],
+      verificationStatus: 'verified',
+      verificationBadgeDetails: `Internal Apollo Staff — ${foundStaff.roleTitle}`,
+      createdAt: foundStaff.createdAt,
+      updatedAt: now,
+    };
+
+    return { user: staffUser, staff: foundStaff };
   }
 
   static async getCompanies(): Promise<Company[]> {

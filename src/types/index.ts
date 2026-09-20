@@ -1,4 +1,6 @@
-export type UserRole = 'jobSeeker' | 'employer';
+export type UserRole = 'jobSeeker' | 'employer' | 'admin' | 'staff';
+
+export type StaffDivision = 'staff' | 'moderator' | 'support' | 'super_admin';
 
 export type VerificationStatus = 'unverified' | 'pending' | 'verified' | 'rejected';
 
@@ -74,6 +76,8 @@ export interface ApolloUser {
   expectedSalaryCurrency?: string;
   verificationStatus: VerificationStatus;
   verificationBadgeDetails?: string;
+  adminDivision?: StaffDivision;
+  isSuperAdmin?: boolean;
   companyId?: string;
   companyName?: string;
   companyRoleTitle?: string;
@@ -237,5 +241,65 @@ export interface TrustReport {
   reason: 'fraud_scam' | 'misleading_salary' | 'harassment' | 'offensive_content' | 'discriminatory' | 'other';
   details: string;
   status: 'received' | 'investigating' | 'resolved' | 'dismissed';
+  moderatorNotes?: string;
+  actionTaken?: 'none' | 'warning_issued' | 'job_suspended' | 'user_suspended' | 'dismissed';
+  resolvedBy?: string;
+  resolvedAt?: string;
   createdAt: string;
+}
+
+export interface StaffMember {
+  id: string;
+  email: string;
+  displayName: string;
+  division: 'staff' | 'moderator' | 'support';
+  roleTitle: string;
+  passwordHash?: string;
+  status: 'active' | 'inactive';
+  phone?: string;
+  createdAt: string;
+  createdBy: string;
+  lastLoginAt?: string;
+}
+
+export type TicketPriority = 'low' | 'normal' | 'high' | 'urgent';
+export type TicketStatus = 'open' | 'in_progress' | 'resolved' | 'closed';
+export type TicketCategory =
+  | 'account_verification'
+  | 'company_verification'
+  | 'job_posting'
+  | 'applicant_issue'
+  | 'technical_bug'
+  | 'trust_safety_aduan'
+  | 'billing_subscription'
+  | 'general_inquiry';
+
+export interface TicketReply {
+  id: string;
+  ticketId: string;
+  senderId: string;
+  senderName: string;
+  senderRole: 'user' | 'support' | 'admin' | 'staff';
+  message: string;
+  createdAt: string;
+  attachmentUrl?: string;
+}
+
+export interface SupportTicket {
+  id: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  userRole: UserRole;
+  subject: string;
+  category: TicketCategory;
+  priority: TicketPriority;
+  status: TicketStatus;
+  description: string;
+  assignedTo?: string; // staff or admin name
+  assignedDivision?: StaffDivision;
+  replies: TicketReply[];
+  createdAt: string;
+  updatedAt: string;
+  resolvedAt?: string;
 }
